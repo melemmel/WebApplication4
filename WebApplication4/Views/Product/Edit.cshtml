@@ -1,0 +1,96 @@
+﻿@model WebApplication4.Models.tblProduct
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container">
+    <h2 class="pt-5" style="font-family: 'Days One', sans-serif; font-weight: 400; font-style: normal;">Edit @(Model != null ? Model.prod_name : "Product")</h2>
+
+    @using (Html.BeginForm("Edit", "Product", FormMethod.Post, new { enctype = "multipart/form-data", id = "editForm" }))
+    {
+        if (Model != null) // Check if the model is not null
+        {
+            @Html.HiddenFor(model => model.prod_id); // Use lowercase 'model' here
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="card">
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <td>Enter Product Name:</td>
+                            <td>
+                                @Html.EditorFor(model => model.prod_name, new { htmlAttributes = new { @class = "form-control", autocomplete = "off", id = "prod_name" } })
+                                @Html.ValidationMessageFor(model => model.prod_name, "", new { @class = "text-danger" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Enter Product Price:</td>
+                            <td>
+                                @Html.EditorFor(model => model.prod_price, new { htmlAttributes = new { @class = "form-control", autocomplete = "off", id = "prod_price" } })
+                                @Html.ValidationMessageFor(model => model.prod_price, "", new { @class = "text-danger" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Enter Product Quantity:</td>
+                            <td>
+                                @Html.EditorFor(model => model.prod_qty, new { htmlAttributes = new { @class = "form-control", autocomplete = "off", id = "prod_qty" } })
+                                @Html.ValidationMessageFor(model => model.prod_qty, "", new { @class = "text-danger" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Choose a Product Image:</td>
+                            <td>
+                                <img src="~/Content/images/@Model.prod_pic" alt="@Model.prod_name" width="300" height="200" />
+                                <br />
+                                <input type="file" name="postedFile" id="postedFile" class="form-control" onchange="previewImage(event)" />
+                                <br />
+                                <img id="imagePreview" src="#" alt="Product Image" style="max-width: 200px; max-height: 200px;" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button type="button" onclick="validateForm()" class="btn btn-primary text-center">Update Product</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger" role="alert">
+                No product found. Please make sure you have selected a valid product to edit.
+            </div>
+        }
+    }
+</div>
+
+<script>
+    function validateForm() {
+        var productName = document.getElementById('prod_name').value.trim();
+        var productPrice = document.getElementById('prod_price').value.trim();
+        var productQuantity = document.getElementById('prod_qty').value.trim();
+
+        if (!productName || !productPrice || !productQuantity) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Please fill in all fields.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            document.getElementById('editForm').submit();
+        }
+    }
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var imagePreview = document.getElementById('imagePreview');
+            imagePreview.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>

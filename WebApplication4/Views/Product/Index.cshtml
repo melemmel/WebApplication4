@@ -1,0 +1,120 @@
+﻿
+
+
+@{
+    ViewBag.Title = "Product";
+}
+
+
+<div class="container pt-2">
+    <div class="d-flex justify-content-center">
+        <h3 style="font-family: 'Days One', sans-serif; font-weight: 400; font-style: normal;">
+            List of Products
+        </h3>
+    </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div x-data="{ showMessage: true }" x-show="showMessage"
+             class="alert alert-success alert-dismissible fade show" role="alert"
+             x-init="setTimeout(() => showMessage = false, 3000)">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="card">
+        <div class="card-body">
+            <a href="@Url.Action("Create", "Product", new { area = "" })" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i>                
+                Create New
+            </a>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="example">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th class="text-center">Image</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.prod_id</td>
+                                <td>@item.prod_name</td>
+                                <td>@item.prod_price</td>
+                                <td>@item.prod_qty</td>
+                                <td class="text-center">
+                                    <img src="~/Content/Images/@item.prod_pic" width="300" height="200" alt="@item.prod_name" />
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Edit", "Product", new { id = item.prod_id })" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="@item.prod_id">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+$(document).ready(function () {
+    $('.delete-btn').on('click', function (e) {
+        e.preventDefault(); // Prevent the default action of the link
+        var productId = $(this).data('id');
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to the Delete action with the productId
+                window.location.href = '@Url.Action("Delete", "Product")' + '?id=' + productId;
+            }
+            else {
+                Swal.fire("Cancelled", "Your action has been cancelled", "info");
+            }
+        });
+    });
+
+    $('#example').DataTable({
+        "order": [[1, 'asc'], [2, 'asc'], [3, 'asc']], // Sort by Name, Price, and Quantity columns
+        "paging": true, // Enable pagination
+        "searching": true, // Enable search box
+        "columnDefs": [{ "orderable": false, "targets": 5 }] // Make the Action column not sortable
+    });
+
+    // Check if fields are null before proceeding
+    $('form').submit(function () {
+        var productName = $('#prod_name').val();
+        var productPrice = $('#prod_price').val();
+        var productQuantity = $('#prod_qty').val();
+        if (!productName || !productPrice || !productQuantity) {
+            Swal.fire("Error", "Please fill in all fields before proceeding", "error");
+            return false; // Prevent form submission
+        }
+    });
+});
+    </script>
+
+}
